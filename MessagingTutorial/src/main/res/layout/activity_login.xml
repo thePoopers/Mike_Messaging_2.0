@@ -17,6 +17,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="BookIt"
+            android:layout_gravity="center_horizontal"
+            android:textSize="20sp"
+            android:textIsSelectable="false"
+            android:textColor="@color/sinch_purple" />
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/booksIcon"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/books_icon"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:text="@string/username"
             android:id="@+id/loginUsernameText"
@@ -29,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:inputType="text"
-            android:textSize="32sp"
+            android:textSize="45sp"
             android:padding="10dp"
             android:textColor="@color/sinch_purple"
             android:background="@drawable/inputbox"

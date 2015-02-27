@@ -7,6 +7,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Parse.initialize(this, "app-id", "client-key");
+        Parse.initialize(this, "aCFOhRA9gssJXdc1OTVMWXoZU2HhMIvf8Pu14WrJ", "gVIWFxhRe1iOAipsDAfYAijjXSpyrwAWL3QN1NsG");
     }
 }
