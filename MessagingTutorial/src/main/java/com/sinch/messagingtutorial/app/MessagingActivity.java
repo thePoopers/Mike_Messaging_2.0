@@ -1,11 +1,17 @@
 package com.sinch.messagingtutorial.app;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -131,8 +137,49 @@ public class MessagingActivity extends Activity {
             if (message.getSenderId().equals(recipientId)) {
                 WritableMessage writableMessage = new WritableMessage(message.getRecipientIds().get(0), message.getTextBody());
                 messageAdapter.addMessage(writableMessage, MessageAdapter.DIRECTION_INCOMING);
+
+                //Notify user that message was received.
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.bookitnotificationimage)
+                        .setContentTitle("BookIt "+message.getSenderId())
+                        .setContentText(message.getTextBody());
+
+                //Intent resultIntent = getSenderMessagingActivity(getApplicationContext(), message.getSenderId());
+                Intent resultIntent = new Intent(getApplicationContext(), MessagingActivity.class);
+                resultIntent.putExtra("RECIPIENT_ID", message.getSenderId());
+                PendingIntent resultPending = PendingIntent.getActivity(getApplicationContext(),
+                        0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                mBuilder.setContentIntent(resultPending);
+                int notificationId = 001;
+                NotificationManager notificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(notificationId, mBuilder.build());
             }
         }
+
+        private Intent getSenderMessagingActivity(final Context applicationContext, String senderId) {
+            Log.d("GetSenderMessaging", senderId);
+            final Intent[] intent = new Intent[1];
+            ParseQuery<ParseUser> query = ParseUser.getQuery();
+            query.whereEqualTo("objectId", senderId);
+            query.findInBackground(new FindCallback<ParseUser>() {
+                public void done(List<ParseUser> user, com.parse.ParseException e) {
+                    if (e == null) {
+                        intent[0] = new Intent(applicationContext, MessagingActivity.class);
+                        intent[0].putExtra("RECIPIENT_ID", user.get(0).getObjectId());
+                    } else {
+                        Toast.makeText(applicationContext,
+                                "Error finding that user",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            return intent[0];
+        }
+
 
         @Override
         public void onMessageSent(MessageClient client, Message message, String recipientId) {

@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -39,6 +40,8 @@ public class ListUsersActivity extends Activity {
         setContentView(R.layout.activity_list_users);
 
         showSpinner();
+
+        ParseAnalytics.trackAppOpened(getIntent());
 
         logoutButton = (Button) findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +90,7 @@ public class ListUsersActivity extends Activity {
             }
         });
     }
+
 
     //open a conversation with one person
     public void openConversation(ArrayList<String> names, int pos) {

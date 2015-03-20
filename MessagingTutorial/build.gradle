@@ -23,5 +23,6 @@ dependencies {
     compile 'com.android.support:support-v4:19.+'
     compile 'com.android.support:appcompat-v7:19.+'
     compile files('libs/Parse-1.6.0.jar')
+    compile 'com.parse.bolts:bolts-android:1.+'
     compile files('libs/sinch-android-rtc-3.3.5.jar')
 }
