@@ -9,6 +9,7 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,22 +74,31 @@ public class LoginActivity extends Activity {
                 username = usernameField.getText().toString();
                 password = passwordField.getText().toString();
 
-                ParseUser user = new ParseUser();
-                user.setUsername(username);
-                user.setPassword(password);
+                Log.d("Login", "Username "+username+" Password "+password);
+                Log.d("Login", "Username length  "+username.length()+" Password length "+password.length());
 
-                user.signUpInBackground(new SignUpCallback() {
-                    public void done(com.parse.ParseException e) {
-                        if (e == null) {
-                            startService(serviceIntent);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(getApplicationContext(),
-                                "There was an error signing up."
-                                    , Toast.LENGTH_LONG).show();
+                if (username.length() < 1 || password.length() < 1 ) {
+                    Toast.makeText(getApplicationContext(),
+                            "Username and Password required for signup", Toast.LENGTH_LONG).show();
+                }else {
+                    ParseUser user = new ParseUser();
+                    user.setUsername(username);
+                    user.setPassword(password);
+
+                    user.signUpInBackground(new SignUpCallback() {
+                        public void done(com.parse.ParseException e) {
+                            if (e == null) {
+                                startService(serviceIntent);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(getApplicationContext(),
+                                        "There was an error signing up."
+                                        , Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
             }
         });
     }
