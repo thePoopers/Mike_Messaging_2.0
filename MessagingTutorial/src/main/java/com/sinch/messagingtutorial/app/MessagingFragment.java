@@ -1,6 +1,6 @@
 package com.sinch.messagingtutorial.app;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -9,11 +9,15 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -31,7 +35,10 @@ import com.sinch.android.rtc.messaging.WritableMessage;
 import java.util.Arrays;
 import java.util.List;
 
-public class MessagingActivity extends Activity {
+/**
+ * Created by Mike on 4/4/2015.
+ */
+public class MessagingFragment extends Fragment {
 
     private String recipientId;
     private EditText messageBodyField;
@@ -42,31 +49,35 @@ public class MessagingActivity extends Activity {
     private String currentUserId;
     private ServiceConnection serviceConnection = new MyServiceConnection();
     private MessageClientListener messageClientListener = new MyMessageClientListener();
+    private RelativeLayout messagingLayout;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.messaging);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        bindService(new Intent(this, MessageService.class), serviceConnection, BIND_AUTO_CREATE);
+        messagingLayout = (RelativeLayout) inflater.inflate(R.layout.messaging, container, false);
 
-        Intent intent = getIntent();
+        getActivity().bindService(new Intent(super.getActivity(), MessageService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+
+        Intent intent = super.getActivity().getIntent();
         recipientId = intent.getStringExtra("RECIPIENT_ID");
         currentUserId = ParseUser.getCurrentUser().getObjectId();
 
-        messagesList = (ListView) findViewById(R.id.listMessages);
-        messageAdapter = new MessageAdapter(this);
+        messagesList = (ListView) messagingLayout.findViewById(R.id.listMessages);
+        messageAdapter = new MessageAdapter(super.getActivity());
         messagesList.setAdapter(messageAdapter);
         populateMessageHistory();
 
-        messageBodyField = (EditText) findViewById(R.id.messageBodyField);
+        messageBodyField = (EditText) messagingLayout.findViewById(R.id.messageBodyField);
 
-        findViewById(R.id.sendButton).setOnClickListener(new View.OnClickListener() {
+        messagingLayout.findViewById(R.id.sendButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendMessage();
             }
         });
+
+        return messagingLayout;
     }
 
     //get previous messages from parse & display
@@ -96,7 +107,7 @@ public class MessagingActivity extends Activity {
     private void sendMessage() {
         messageBody = messageBodyField.getText().toString();
         if (messageBody.isEmpty()) {
-            Toast.makeText(this, "Please enter a message", Toast.LENGTH_LONG).show();
+            Toast.makeText(super.getActivity(), "Please enter a message", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -107,7 +118,7 @@ public class MessagingActivity extends Activity {
     @Override
     public void onDestroy() {
         messageService.removeMessageClientListener(messageClientListener);
-        unbindService(serviceConnection);
+        getActivity().unbindService(serviceConnection);
         super.onDestroy();
     }
 
@@ -128,7 +139,7 @@ public class MessagingActivity extends Activity {
         @Override
         public void onMessageFailed(MessageClient client, Message message,
                                     MessageFailureInfo failureInfo) {
-            Toast.makeText(MessagingActivity.this, "Message failed to send.", Toast.LENGTH_LONG).show();
+            Toast.makeText(MessagingFragment.super.getActivity(), "Message failed to send.", Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -139,23 +150,23 @@ public class MessagingActivity extends Activity {
 
                 //Notify user that message was received.
                 NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.bookitnotificationimage)
-                        .setContentTitle("BookIt "+message.getSenderId())
-                        .setContentText(message.getTextBody())
-                        .setAutoCancel(true);
+                        new NotificationCompat.Builder(getActivity().getApplicationContext())
+                                .setSmallIcon(R.drawable.bookitnotificationimage)
+                                .setContentTitle("BookIt "+message.getSenderId())
+                                .setContentText(message.getTextBody())
+                                .setAutoCancel(true);
 
 
                 //Intent resultIntent = getSenderMessagingActivity(getApplicationContext(), message.getSenderId());
-                Intent resultIntent = new Intent(getApplicationContext(), MessagingActivity.class);
+                Intent resultIntent = new Intent(getActivity().getApplicationContext(), MessagingActivity.class);
                 resultIntent.putExtra("RECIPIENT_ID", message.getSenderId());
-                PendingIntent resultPending = PendingIntent.getActivity(getApplicationContext(),
+                PendingIntent resultPending = PendingIntent.getActivity(getActivity().getApplicationContext(),
                         0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                 mBuilder.setContentIntent(resultPending);
                 int notificationId = 001;
                 NotificationManager notificationManager =
-                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                        (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(notificationId, mBuilder.build());
             }
         }
@@ -216,7 +227,3 @@ public class MessagingActivity extends Activity {
         public void onShouldSendPushData(MessageClient client, Message message, List<PushPair> pushPairs) {}
     }
 }
-
-
-
-
