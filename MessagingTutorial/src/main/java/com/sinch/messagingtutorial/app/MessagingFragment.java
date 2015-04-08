@@ -1,5 +1,6 @@
 package com.sinch.messagingtutorial.app;
 
+import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -167,7 +168,21 @@ public class MessagingFragment extends Fragment {
                 int notificationId = 001;
                 NotificationManager notificationManager =
                         (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify(notificationId, mBuilder.build());
+
+                //check to make sure application is not in foreground before sending notification.
+                ActivityManager activityManager = (ActivityManager) getActivity().getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+                List<ActivityManager.RunningTaskInfo> services = activityManager
+                        .getRunningTasks(Integer.MAX_VALUE);
+                boolean isActivityFound = false;
+
+                if (services.get(0).topActivity.getPackageName().toString()
+                        .equalsIgnoreCase(getActivity().getApplicationContext().getPackageName().toString())) {
+                    isActivityFound = true;
+                }
+
+                if (!isActivityFound) {
+                    notificationManager.notify(notificationId, mBuilder.build());
+                }
             }
         }
 

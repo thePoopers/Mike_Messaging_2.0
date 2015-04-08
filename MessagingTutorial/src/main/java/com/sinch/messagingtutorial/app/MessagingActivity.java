@@ -1,6 +1,7 @@
 package com.sinch.messagingtutorial.app;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -156,7 +157,22 @@ public class MessagingActivity extends Activity {
                 int notificationId = 001;
                 NotificationManager notificationManager =
                         (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                notificationManager.notify(notificationId, mBuilder.build());
+
+                //check to make sure application is not in foreground before sending notification.
+                ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+                List<ActivityManager.RunningTaskInfo> services = activityManager
+                        .getRunningTasks(Integer.MAX_VALUE);
+                boolean isActivityFound = false;
+
+                if (services.get(0).topActivity.getPackageName().toString()
+                        .equalsIgnoreCase(getApplicationContext().getPackageName().toString())) {
+                    isActivityFound = true;
+                }
+
+                if (!isActivityFound) {
+                    notificationManager.notify(notificationId, mBuilder.build());
+                }
+
             }
         }
 
