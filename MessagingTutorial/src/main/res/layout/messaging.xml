@@ -9,6 +9,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:transcriptMode="alwaysScroll"
+        android:background="@android:color/white"
             android:layout_above="@+id/divider"
             android:padding="0dip"
             android:divider="@null"
@@ -18,7 +19,7 @@
         android:id="@+id/divider"
         android:layout_width="fill_parent"
 		android:layout_height="1dip"
-		android:background="@color/off_white"
+		android:background="@android:color/white"
 		android:layout_above="@+id/relSendMessage" />
 
     <RelativeLayout
